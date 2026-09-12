@@ -1,5 +1,8 @@
 package com.alok.campus_booking_system.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.alok.campus_booking_system.enums.Role;
 import com.alok.campus_booking_system.enums.UserStatus;
 import jakarta.persistence.*;
@@ -23,8 +26,11 @@ public class User {
 
     private String password;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private Set<Role> roles = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
