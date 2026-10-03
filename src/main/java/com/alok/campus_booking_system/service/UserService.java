@@ -1,6 +1,8 @@
 package com.alok.campus_booking_system.service;
 
 import com.alok.campus_booking_system.dto.RegisterRequest;
+import com.alok.campus_booking_system.dto.LoginRequest;
+import com.alok.campus_booking_system.security.JwtUtil;
 import com.alok.campus_booking_system.enums.Role;
 import com.alok.campus_booking_system.enums.UserStatus;
 import com.alok.campus_booking_system.entity.User;
@@ -20,6 +22,25 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public String login(LoginRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalArgumentException("Account is not active yet");
+        }
+
+        return jwtUtil.generateToken(user.getEmail());
+    }
 
     public User register(RegisterRequest request) {
 
