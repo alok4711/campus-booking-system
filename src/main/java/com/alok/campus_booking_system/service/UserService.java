@@ -44,7 +44,7 @@ public class UserService {
 
     public User register(RegisterRequest request) {
 
-        if (!request.getEmail().toLowerCase().endsWith("@student.annauniv.edu")) {
+        if (!request.getEmail().toLowerCase().endsWith("@student.annauniv.edu") && !request.getEmail().toLowerCase().endsWith("@annauniv.edu")) {
             throw new IllegalArgumentException("Only college email addresses are allowed");
         }
 

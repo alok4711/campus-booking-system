@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-
 @Component
 public class JwtUtil {
 
