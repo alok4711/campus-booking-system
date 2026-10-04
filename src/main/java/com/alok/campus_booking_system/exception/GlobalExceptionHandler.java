@@ -22,7 +22,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateEntry(DataIntegrityViolationException ex) {
         Map<String, String> error = new HashMap<>();
-        error.put("error", "Email already registered");
+
+        String message = ex.getMostSpecificCause().getMessage();
+
+        if (message != null && message.contains("email")) {
+            error.put("error", "Email already registered");
+        } else if (message != null && message.contains("code")) {
+            error.put("error", "Department code already exists");
+        } else {
+            error.put("error", "A record with this value already exists");
+        }
+
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 }
