@@ -15,6 +15,14 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
     public Booking createBooking(Booking booking) {
+
+        List<Booking> conflicts = bookingRepository.findConflictingBookings(
+                booking.getResource(), booking.getStartTime(), booking.getEndTime());
+
+        if (!conflicts.isEmpty()) {
+            throw new IllegalArgumentException("This resource is already booked for the selected time slot");
+        }
+
         return bookingRepository.save(booking);
     }
 
