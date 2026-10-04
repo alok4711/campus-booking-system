@@ -1,5 +1,6 @@
 package com.alok.campus_booking_system.controller;
 
+import com.alok.campus_booking_system.dto.BookingRequest;
 import com.alok.campus_booking_system.entity.Booking;
 import com.alok.campus_booking_system.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ public class BookingController {
     @Autowired 
     private BookingService bookingService;
 
-    @PostMapping 
-    public Booking createBooking(@RequestBody Booking booking) {
-        return bookingService.createBooking(booking);
+    @PostMapping
+    public Booking createBooking(@RequestBody BookingRequest request, Authentication authentication) {
+        return bookingService.createBooking(request, authentication);
     }
 
     @GetMapping

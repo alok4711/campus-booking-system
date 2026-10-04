@@ -8,6 +8,7 @@ import com.alok.campus_booking_system.repository.BookableResourceRepository;
 import com.alok.campus_booking_system.entity.User;
 import com.alok.campus_booking_system.repository.UserRepository;
 import com.alok.campus_booking_system.enums.Role;
+import com.alok.campus_booking_system.dto.BookingRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,30 @@ public class BookingService {
     private UserRepository userRepository;
 
     @Transactional
-    public Booking createBooking(Booking booking) {
+    public Booking createBooking(BookingRequest request, Authentication authentication) {
 
-        BookableResource lockedResource = bookableResourceRepository.findById(booking.getResource().getId())
+        User currentUser = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        BookableResource lockedResource = bookableResourceRepository.findById(request.getResourceId())
                 .orElseThrow(() -> new IllegalArgumentException("Resource not found"));
 
         List<Booking> conflicts = bookingRepository.findConflictingBookings(
-                lockedResource, booking.getStartTime(), booking.getEndTime());
+                lockedResource, request.getStartTime(), request.getEndTime());
 
         if (!conflicts.isEmpty()) {
             throw new IllegalArgumentException("This resource is already booked for the selected time slot");
         }
 
+        Booking booking = new Booking();
+        booking.setBookingPurpose(request.getBookingPurpose());
+        booking.setStartTime(request.getStartTime());
+        booking.setEndTime(request.getEndTime());
+        booking.setAttendeesCount(request.getAttendeesCount());
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setBookedBy(currentUser);
         booking.setResource(lockedResource);
+
         return bookingRepository.save(booking);
     }
 
