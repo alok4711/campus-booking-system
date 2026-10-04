@@ -29,5 +29,10 @@ public class UserController {
     public User register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
+
+    @GetMapping("/verify")
+    public String verifyEmail(@RequestParam String token) {
+        return userService.verifyEmail(token);
+    }
     
 }
