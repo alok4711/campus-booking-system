@@ -17,5 +17,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long>{
             @Param("resource") BookableResource resource,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
+
+    List<Booking> findByResourceDepartmentId(Long departmentId);
     
 }

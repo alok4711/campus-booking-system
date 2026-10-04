@@ -5,10 +5,13 @@ import com.alok.campus_booking_system.entity.Booking;
 import com.alok.campus_booking_system.enums.BookingStatus;
 import com.alok.campus_booking_system.repository.BookingRepository;
 import com.alok.campus_booking_system.repository.BookableResourceRepository;
+import com.alok.campus_booking_system.entity.User;
+import com.alok.campus_booking_system.repository.UserRepository;
+import com.alok.campus_booking_system.enums.Role;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 
@@ -20,6 +23,9 @@ public class BookingService {
 
     @Autowired
     private BookableResourceRepository bookableResourceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public Booking createBooking(Booking booking) {
@@ -38,8 +44,18 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public List<Booking> getAllBookings(Authentication authentication) {
+
+        User currentUser = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        boolean isDean = currentUser.getRoles().contains(Role.DEAN);
+
+        if (isDean || currentUser.getDepartment() == null) {
+            return bookingRepository.findAll();
+        }
+
+        return bookingRepository.findByResourceDepartmentId(currentUser.getDepartment().getId());
     }
 
     public Booking approveBooking(Long bookingId) {

@@ -5,6 +5,7 @@ import com.alok.campus_booking_system.service.BookableResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 
 
 import java.util.List;
@@ -22,9 +23,9 @@ public class BookableResourceController {
         return bookableResourceService.createBookableResource(bookableResource);
     }
 
-    @GetMapping 
-    public List<BookableResource> getAllBookableResources() {
-        return bookableResourceService.getAllBookableResources();
+    @GetMapping
+    public List<BookableResource> getAllBookableResources(Authentication authentication) {
+        return bookableResourceService.getAllBookableResources(authentication);
     }
     
 }
