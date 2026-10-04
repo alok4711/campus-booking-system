@@ -16,7 +16,7 @@ public class BookableResourceController {
     @Autowired 
     private BookableResourceService bookableResourceService;
 
-    @PreAuthorize("hasAnyRole('HOD', 'DEAN')")
+    @PreAuthorize("hasRole('DEAN') or (hasRole('HOD') and @permissionGuard.canManageDepartment(authentication, #bookableResource.department.id))")
     @PostMapping 
     public BookableResource createBookableResource(@RequestBody BookableResource bookableResource) {
         return bookableResourceService.createBookableResource(bookableResource);
