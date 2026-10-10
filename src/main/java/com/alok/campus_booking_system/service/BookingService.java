@@ -56,6 +56,14 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
+    public Booking rejectBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        booking.setStatus(BookingStatus.REJECTED);
+        return bookingRepository.save(booking);
+    }
+
     public List<Booking> getAllBookings(Authentication authentication) {
 
         User currentUser = userRepository.findByEmail(authentication.getName())

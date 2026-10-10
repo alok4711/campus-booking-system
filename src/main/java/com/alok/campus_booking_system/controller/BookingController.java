@@ -32,5 +32,11 @@ public class BookingController {
     public Booking approveBooking(@PathVariable Long bookingId) {
         return bookingService.approveBooking(bookingId);
     }
+
+    @PreAuthorize("hasRole('DEAN') or (hasRole('HOD') and @permissionGuard.canManageBooking(authentication, #bookingId))")
+    @PutMapping("/{bookingId}/reject")
+    public Booking rejectBooking(@PathVariable Long bookingId) {
+        return bookingService.rejectBooking(bookingId);
+    }
     
 }
