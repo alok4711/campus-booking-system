@@ -21,4 +21,5 @@ public class BookingResponse {
     private String bookedByName;
     private String bookedByEmail;
     private boolean mine;
+    private String classSection;
 }

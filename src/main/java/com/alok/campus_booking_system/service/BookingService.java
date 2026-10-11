@@ -51,6 +51,14 @@ public class BookingService {
         User currentUser = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        String classSection = null;
+        if (currentUser.getRoles().contains(Role.CLASS_REPRESENTATIVE)) {
+            classSection = currentUser.getClassSection();
+            if (classSection == null || classSection.isBlank()) {
+                throw new IllegalArgumentException("Your class section is not set yet. Ask your HOD to set it.");
+            }
+        }
+
         BookableResource lockedResource = bookableResourceRepository.findById(request.getResourceId())
                 .orElseThrow(() -> new IllegalArgumentException("Resource not found"));
 
@@ -79,6 +87,7 @@ public class BookingService {
         booking.setStatus(BookingStatus.PENDING);
         booking.setBookedBy(currentUser);
         booking.setResource(lockedResource);
+        booking.setClassSection(classSection);
 
         return toResponse(bookingRepository.save(booking), true, true);
     }
@@ -139,6 +148,7 @@ public class BookingService {
             r.setAttendeesCount(b.getAttendeesCount());
             r.setBookedByName(b.getBookedBy().getName());
             r.setBookedByEmail(b.getBookedBy().getEmail());
+            r.setClassSection(b.getClassSection());
         } else {
             r.setBookingPurpose("Booked");
         }

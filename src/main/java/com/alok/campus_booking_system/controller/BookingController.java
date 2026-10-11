@@ -17,6 +17,7 @@ public class BookingController {
     @Autowired 
     private BookingService bookingService;
 
+    @PreAuthorize("hasAnyRole('CLASS_REPRESENTATIVE', 'FACULTY', 'STAFF', 'HOD', 'DEAN')")
     @PostMapping
     public BookingResponse createBooking(@RequestBody BookingRequest request, Authentication authentication) {
         return bookingService.createBooking(request, authentication);

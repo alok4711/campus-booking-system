@@ -22,6 +22,8 @@ public class User {
 
     private String name;
 
+    private String classSection;
+
     @Column(unique = true)
     private String email;
 

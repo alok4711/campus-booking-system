@@ -24,6 +24,8 @@ public class Booking {
 
     private Integer attendeesCount;
 
+    private String classSection;
+
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
