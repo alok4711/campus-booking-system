@@ -10,6 +10,8 @@ import com.alok.campus_booking_system.repository.UserRepository;
 import com.alok.campus_booking_system.repository.VerificationTokenRepository;
 import com.alok.campus_booking_system.security.JwtUtil;
 import com.alok.campus_booking_system.dto.UserResponse;
+import com.alok.campus_booking_system.entity.Department;
+import com.alok.campus_booking_system.repository.DepartmentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +41,9 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     public UserResponse register(RegisterRequest request) {
 
         if (!request.getEmail().toLowerCase().endsWith("@student.annauniv.edu")
@@ -47,12 +52,19 @@ public class UserService {
             throw new IllegalArgumentException("Only college email addresses are allowed");
         }
 
+        if (request.getDepartmentId() == null) {
+            throw new IllegalArgumentException("Please select your department");
+        }
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Set.of(Role.STUDENT));
         user.setStatus(UserStatus.UNVERIFIED);
+        user.setDepartment(department);
 
         User savedUser = userRepository.save(user);
 
