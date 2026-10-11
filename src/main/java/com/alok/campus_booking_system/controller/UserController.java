@@ -1,6 +1,6 @@
 package com.alok.campus_booking_system.controller;
 
-import com.alok.campus_booking_system.entity.User;
+import com.alok.campus_booking_system.dto.UserResponse;
 import com.alok.campus_booking_system.service.UserService;
 import com.alok.campus_booking_system.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,12 @@ public class UserController {
 
     @PreAuthorize("hasRole('DEAN')")
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
+    public UserResponse register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 

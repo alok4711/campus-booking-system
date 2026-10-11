@@ -24,9 +24,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String email, Set<Role> roles) {
+    public String generateToken(String email, String name, Set<Role> roles) {
         return Jwts.builder()
                 .subject(email)
+                .claim("name", name)
                 .claim("roles", roles.stream().map(Enum::name).toList())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))

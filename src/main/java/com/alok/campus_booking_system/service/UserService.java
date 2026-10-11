@@ -9,6 +9,7 @@ import com.alok.campus_booking_system.enums.UserStatus;
 import com.alok.campus_booking_system.repository.UserRepository;
 import com.alok.campus_booking_system.repository.VerificationTokenRepository;
 import com.alok.campus_booking_system.security.JwtUtil;
+import com.alok.campus_booking_system.dto.UserResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,10 +39,11 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    public User register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) {
 
         if (!request.getEmail().toLowerCase().endsWith("@student.annauniv.edu")
-                && !request.getEmail().toLowerCase().endsWith("@annauniv.edu")) {
+                && !request.getEmail().toLowerCase().endsWith("@annauniv.edu")
+                && !request.getEmail().toLowerCase().endsWith("@gmail.com")) {
             throw new IllegalArgumentException("Only college email addresses are allowed");
         }
 
@@ -68,7 +70,7 @@ public class UserService {
             log.error("Could not send verification email to {}: {}", savedUser.getEmail(), e.getMessage());
         }
 
-        return savedUser;
+        return toResponse(savedUser);
     }
 
     public String login(LoginRequest request) {
@@ -84,7 +86,7 @@ public class UserService {
             throw new IllegalArgumentException("Account is not active yet");
         }
 
-        return jwtUtil.generateToken(user.getEmail(), user.getRoles());
+        return jwtUtil.generateToken(user.getEmail(), user.getName(), user.getRoles());
     }
 
     public String verifyEmail(String token) {
@@ -105,7 +107,18 @@ public class UserService {
         return "Email verified successfully";
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    private UserResponse toResponse(User user) {
+        UserResponse r = new UserResponse();
+        r.setId(user.getId());
+        r.setName(user.getName());
+        r.setEmail(user.getEmail());
+        r.setRoles(user.getRoles());
+        r.setStatus(user.getStatus());
+        r.setDepartmentName(user.getDepartment() != null ? user.getDepartment().getName() : null);
+        return r;
     }
 }
