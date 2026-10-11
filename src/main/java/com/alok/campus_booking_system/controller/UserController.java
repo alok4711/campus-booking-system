@@ -5,6 +5,7 @@ import com.alok.campus_booking_system.service.UserService;
 import com.alok.campus_booking_system.dto.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -15,11 +16,7 @@ public class UserController {
     @Autowired 
     private UserService userService;
 
-    @PostMapping 
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
-    }
-
+    @PreAuthorize("hasRole('DEAN')")
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();

@@ -1,8 +1,8 @@
 package com.alok.campus_booking_system.controller;
 
 import com.alok.campus_booking_system.dto.BookingRequest;
-import com.alok.campus_booking_system.entity.Booking;
 import com.alok.campus_booking_system.service.BookingService;
+import com.alok.campus_booking_system.dto.BookingResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,24 +18,24 @@ public class BookingController {
     private BookingService bookingService;
 
     @PostMapping
-    public Booking createBooking(@RequestBody BookingRequest request, Authentication authentication) {
+    public BookingResponse createBooking(@RequestBody BookingRequest request, Authentication authentication) {
         return bookingService.createBooking(request, authentication);
     }
 
     @GetMapping
-    public List<Booking> getAllBookings(Authentication authentication) {
+    public List<BookingResponse> getAllBookings(Authentication authentication) {
         return bookingService.getAllBookings(authentication);
     }
 
     @PreAuthorize("hasRole('DEAN') or (hasRole('HOD') and @permissionGuard.canManageBooking(authentication, #bookingId))")
     @PutMapping("/{bookingId}/approve")
-    public Booking approveBooking(@PathVariable Long bookingId) {
+    public BookingResponse approveBooking(@PathVariable Long bookingId) {
         return bookingService.approveBooking(bookingId);
     }
 
     @PreAuthorize("hasRole('DEAN') or (hasRole('HOD') and @permissionGuard.canManageBooking(authentication, #bookingId))")
     @PutMapping("/{bookingId}/reject")
-    public Booking rejectBooking(@PathVariable Long bookingId) {
+    public BookingResponse rejectBooking(@PathVariable Long bookingId) {
         return bookingService.rejectBooking(bookingId);
     }
     

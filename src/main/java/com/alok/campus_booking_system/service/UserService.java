@@ -1,27 +1,29 @@
 package com.alok.campus_booking_system.service;
 
-import com.alok.campus_booking_system.dto.RegisterRequest;
 import com.alok.campus_booking_system.dto.LoginRequest;
-import com.alok.campus_booking_system.security.JwtUtil;
+import com.alok.campus_booking_system.dto.RegisterRequest;
+import com.alok.campus_booking_system.entity.User;
+import com.alok.campus_booking_system.entity.VerificationToken;
 import com.alok.campus_booking_system.enums.Role;
 import com.alok.campus_booking_system.enums.UserStatus;
-import com.alok.campus_booking_system.entity.User;
 import com.alok.campus_booking_system.repository.UserRepository;
-import com.alok.campus_booking_system.entity.VerificationToken;
 import com.alok.campus_booking_system.repository.VerificationTokenRepository;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import com.alok.campus_booking_system.security.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;  
+import java.util.Set;
+import java.util.UUID;
 
-@Service 
+@Slf4j
+@Service
 public class UserService {
 
-    @Autowired 
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -33,21 +35,8 @@ public class UserService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
 
-    public String login(LoginRequest request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
-        }
-
-        if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new IllegalArgumentException("Account is not active yet");
-        }
-
-        return jwtUtil.generateToken(user.getEmail());
-    }
+    @Autowired
+    private EmailService emailService;
 
     public User register(RegisterRequest request) {
 
@@ -72,15 +61,30 @@ public class UserService {
 
         verificationTokenRepository.save(verificationToken);
 
+        try {
+            emailService.sendVerificationEmail(
+                    savedUser.getEmail(), savedUser.getName(), verificationToken.getToken());
+        } catch (Exception e) {
+            log.error("Could not send verification email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
+
         return savedUser;
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
-    }
+    public String login(LoginRequest request) {
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalArgumentException("Account is not active yet");
+        }
+
+        return jwtUtil.generateToken(user.getEmail(), user.getRoles());
     }
 
     public String verifyEmail(String token) {
@@ -96,7 +100,12 @@ public class UserService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
+        verificationTokenRepository.delete(verificationToken);
+
         return "Email verified successfully";
     }
-    
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

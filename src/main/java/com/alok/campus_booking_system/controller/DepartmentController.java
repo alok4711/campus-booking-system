@@ -4,6 +4,7 @@ import com.alok.campus_booking_system.entity.Department;
 import com.alok.campus_booking_system.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class DepartmentController {
     @Autowired
     private DepartmentService departmentService;
 
+    @PreAuthorize("hasRole('DEAN')")
     @PostMapping
     public Department createDepartment(@RequestBody Department department) {
         return departmentService.createDepartment(department);

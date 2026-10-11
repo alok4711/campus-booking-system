@@ -1,12 +1,15 @@
 package com.alok.campus_booking_system.security;
 
+import com.alok.campus_booking_system.enums.Role;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Set;
 
 @Component
 public class JwtUtil {
@@ -21,9 +24,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, Set<Role> roles) {
         return Jwts.builder()
                 .subject(email)
+                .claim("roles", roles.stream().map(Enum::name).toList())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())
